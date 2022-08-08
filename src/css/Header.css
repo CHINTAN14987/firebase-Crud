@@ -1,0 +1,17 @@
+.header_wrapper button {
+    background-color: #e50914;
+    color: white;
+    padding: 10px 20px;
+    
+    font-weight: 600;
+    font-size: 20px;
+    border: transparent;
+    border-radius: 6px;
+   
+}
+.header_wrapper{
+    display: flex;
+    justify-content: flex-end;
+    width: 90%;
+    margin: 10px auto;
+}

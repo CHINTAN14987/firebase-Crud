@@ -6,15 +6,14 @@ import {
   signInWithPopup,
   FacebookAuthProvider,
   TwitterAuthProvider,
-  signInWithPhoneNumber,
+  signInWithEmailAndPassword,
+  signOut,
 } from "firebase/auth";
 
 const auth = getAuth();
 const provider = new GoogleAuthProvider();
 const faceBookProvider = new FacebookAuthProvider();
 const twitterAuthProvider = new TwitterAuthProvider();
-// const phoneNumber = getPhoneNumberFromUserInput();
-const appVerifier = window.recaptchaVerifier;
 
 const RegisterUser = (email, password) => {
   return createUserWithEmailAndPassword(auth, email, password);
@@ -30,11 +29,21 @@ const loginWithFacebook = () => {
 const loginwithTwitter = () => {
   return signInWithPopup(auth, twitterAuthProvider);
 };
+const signIn = (email, password) => {
+  return signInWithEmailAndPassword(auth, email, password);
+};
 
+const AuthChangedWithuser = () => {};
+
+const SignOuthandler = () => {
+  return signOut(auth);
+};
 const firebaseAuthService = {
   RegisterUser,
   loginwithGmail,
   loginWithFacebook,
   loginwithTwitter,
+  signIn,
+  SignOuthandler,
 };
 export default firebaseAuthService;

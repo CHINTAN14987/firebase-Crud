@@ -1,70 +1,154 @@
-import axios from "axios";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import FirebaseAuthService from "./firebaseAuthService";
+import "./css/SignUp.css";
+import { IoLogoTwitter } from "react-icons/io";
+import { BsFacebook } from "react-icons/bs";
+
+import { SiGmail } from "react-icons/si";
+import "./css/Login.css";
+import { useDispatch, useSelector } from "react-redux";
+import { loginAction } from "./features/loginSlice";
 
 const Login = () => {
-  let navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [data, setData] = useState({
+  const [signUpData, setSignUpData] = useState({
     email: "",
-    password: " ",
+    password: "",
   });
 
-  const handleLoginChange = (e) => {
-    setData({ ...data, [e.target.name]: e.target.value });
-  };
-  const handleClick = () => {
-    register();
-  };
-  const handleBack = () => {
-    navigate(-1);
-  };
+  const [showEmailerror, setShowEmailError] = useState("");
+  const [showPasswordError, setShowPasswordError] = useState("");
+  let navigate = useNavigate();
+  const disptach = useDispatch();
+  const slectedUser = useSelector((state) => state.LoginReducer);
 
-  const register = async () => {
-    setLoading(true);
-    const response = await axios({
-      method: "post",
-      url: "https://ttmg-backend.herokuapp.com/api/auth/staffLogin",
-      data: data,
-      // headers: { "Content-Type": "multipart/form-data" },
-    })
-      .then(function (response) {
-        // console.log(response.status, "Status");
-        if (response.status === 200) {
-          setLoading(false);
+  const LoginHandler = async () => {
+    try {
+      await FirebaseAuthService.signIn(
+        signUpData.email,
+        signUpData.password
+      ).then((r) => {
+        console.log(r.user.email);
 
-          navigate("/page");
-        }
-      })
-      .catch(function (error) {
-        //handle error
-        if (error.response.status === 400) {
-          alert("Email and Password is missing");
-          setLoading(false);
-        } else if (error.response.status === 401) {
-          setLoading(false);
-          alert("Email or password is incorrect");
-        } else {
-          setLoading(false);
-          alert(error.response);
-        }
+        navigate("/home");
+        disptach(
+          loginAction.setUserLogin({
+            name: r.user.displayName,
+            email: r.user.email,
+            photo: r.user.photoURL,
+          })
+        );
       });
+    } catch (error) {
+      console.log(error.message);
+    }
   };
-  return loading ? (
-    <div className="loading">loading....</div>
-  ) : (
-    <div className="loginContainer">
-      <label>Email Address</label>
-      <input value={data.email} onChange={handleLoginChange} name="email" />
-      <label>Password</label>
-      <input
-        value={data.password}
-        onChange={handleLoginChange}
-        name="password"
-      />
-      <div className="buttonFlex">
-        <button onClick={handleClick}>Submit</button>
-        <button onClick={handleBack}>Go Back</button>
+  const gmailHandler = async () => {
+    try {
+      await FirebaseAuthService.loginwithGmail().then((r) => {
+        console.log(r);
+        navigate("/home");
+        disptach(
+          loginAction.setUserLogin({
+            name: r.user.displayName,
+            email: r.user.email,
+            photo: r.user.photoURL,
+          })
+        );
+      });
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+  const twitterHandler = async () => {
+    try {
+      await FirebaseAuthService.loginwithTwitter().then((r) => {
+        console.log(r);
+        navigate("/home");
+        disptach(
+          loginAction.setUserLogin({
+            name: r.user.displayName,
+            email: r.user.email,
+            photo: r.user.photoURL,
+          })
+        );
+      });
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  const FaceBookHandler = async () => {
+    try {
+      await FirebaseAuthService.loginWithFacebook().then((r) => {
+        console.log(r);
+        navigate("/home");
+        disptach(
+          loginAction.setUserLogin({
+            name: r.user.displayName,
+            email: r.user.email,
+            photo: r.user.photoURL,
+          })
+        );
+      });
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+  const inputDataHandler = (e) => {
+    setSignUpData({ ...signUpData, [e.target.name]: e.target.value });
+  };
+  return (
+    <div>
+      <div className="loginContainer">
+        <div className="login_Flex_Container">
+          <h3 className="title">SignIn Your Account</h3>
+
+          <input
+            className={`input1 ${
+              showEmailerror.length > 0
+                ? "InputBorder__ErrorActive1"
+                : "InputBorder__ErrorInActive1"
+            }`}
+            placeholder="email or phone number"
+            value={signUpData.email}
+            name="email"
+            onChange={inputDataHandler}
+            required
+          />
+
+          <span className="signup_Error1">{showEmailerror}</span>
+
+          <input
+            className={`input2 ${
+              showEmailerror.length > 0
+                ? "InputBorder__ErrorActive2"
+                : "InputBorder__ErrorInActive2"
+            }`}
+            placeholder="password"
+            value={signUpData.password}
+            name="password"
+            type="password"
+            onChange={inputDataHandler}
+            required
+          />
+          <span className="signup_Error2">{showPasswordError}</span>
+
+          <div className="icon_wrapper">
+            <IoLogoTwitter fill="blue" size="25px" onClick={twitterHandler} />
+            <BsFacebook fill="blue" size="20px" onClick={FaceBookHandler} />
+            <SiGmail fill="red" size="22px" onClick={gmailHandler} />
+          </div>
+          <button onClick={LoginHandler}>Login</button>
+          <h3 className="Login_Link_Title">
+            New Here? <span onClick={() => navigate("/")}>Sign up now.</span>
+          </h3>
+          <h3 className="Capcha_link">
+            This page is protected by Google reCAPTCHA to ensure you're not a
+            bot.
+            <span>Learn more.</span>
+          </h3>
+        </div>
       </div>
     </div>
   );
